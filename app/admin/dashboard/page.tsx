@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User, Briefcase, FolderOpen, Code, Lock, LogOut, Save, Plus, Trash2, ChevronRight, Bot, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import ImageUploader from "@/components/ImageUploader";
 
 type Tab = "profile" | "projects" | "career" | "skills" | "password" | "ai";
 
@@ -193,9 +194,9 @@ export default function AdminDashboard() {
               {[
                 ["heroTitle", "Name"], ["heroSubtitle", "Subtitle"], ["location", "Location"],
                 ["email", "Email"], ["phone", "Phone"], ["github", "GitHub URL"],
-                ["linkedin", "LinkedIn URL"], ["twitter", "Twitter URL"], ["photoURL", "Photo URL"],
+                ["linkedin", "LinkedIn URL"], ["twitter", "Twitter URL"],
               ].map(([key, label]) => (
-                <div key={key} className={`flex flex-col gap-1.5 ${key === "photoURL" ? "col-span-2" : ""}`}>
+                <div key={key} className="flex flex-col gap-1.5">
                   <label className="text-white/35 text-xs uppercase tracking-wider font-syne">{label}</label>
                   <input value={profile[key] ?? ""} onChange={e => setProfile(p => ({ ...p, [key]: e.target.value }))}
                     className={inputCls} style={inputStyle}
@@ -203,6 +204,14 @@ export default function AdminDashboard() {
                     onBlur={e => e.target.style.borderColor = "hsl(185 100% 48% / 0.12)"} />
                 </div>
               ))}
+              <div className="col-span-2">
+                <ImageUploader
+                  value={profile["photoURL"] ?? ""}
+                  onChange={url => setProfile(p => ({ ...p, photoURL: url }))}
+                  label="Profile Photo"
+                  aspectRatio="1/1"
+                />
+              </div>
               <div className="col-span-2 flex flex-col gap-1.5">
                 <label className="text-white/35 text-xs uppercase tracking-wider font-syne">About Text</label>
                 <textarea value={profile["aboutText"] ?? ""} onChange={e => setProfile(p => ({ ...p, aboutText: e.target.value }))}
@@ -235,8 +244,8 @@ export default function AdminDashboard() {
               <div className="rounded-2xl p-6" style={{ background: "hsl(210 60% 8% / 0.6)", border: "1px solid hsl(185 100% 48% / 0.1)" }}>
                 <h3 className="text-white font-semibold font-syne mb-4">{editProject.id && projects.find(p => p.id === editProject.id) ? "Edit" : "New"} Project</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {(["title", "category", "year", "link", "imageURL"] as const).map(f => (
-                    <div key={f} className={`flex flex-col gap-1.5 ${f === "imageURL" || f === "link" ? "col-span-2" : ""}`}>
+                  {(["title", "category", "year", "link"] as const).map(f => (
+                    <div key={f} className={`flex flex-col gap-1.5 ${f === "link" ? "col-span-2" : ""}`}>
                       <label className="text-white/35 text-xs uppercase tracking-wider font-syne">{f}</label>
                       <input value={editProject[f] ?? ""} onChange={e => setEditProject(p => p ? { ...p, [f]: e.target.value } : p)}
                         className={inputCls} style={inputStyle}
@@ -244,6 +253,14 @@ export default function AdminDashboard() {
                         onBlur={e => e.target.style.borderColor = "hsl(185 100% 48% / 0.12)"} />
                     </div>
                   ))}
+                  <div className="col-span-2">
+                    <ImageUploader
+                      value={editProject.imageURL ?? ""}
+                      onChange={url => setEditProject(p => p ? { ...p, imageURL: url } : p)}
+                      label="Project Image"
+                      aspectRatio="16/9"
+                    />
+                  </div>
                   <div className="col-span-2 flex flex-col gap-1.5">
                     <label className="text-white/35 text-xs uppercase tracking-wider font-syne">Description</label>
                     <textarea value={editProject.description} onChange={e => setEditProject(p => p ? { ...p, description: e.target.value } : p)}

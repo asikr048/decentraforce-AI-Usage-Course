@@ -15,6 +15,7 @@ export default function HomePage() {
   const cfg = useSiteConfig();
   const [projects, setProjects] = useState<Project[]>([]);
 
+  
   useEffect(() => {
     fetch("/api/projects").then(r => r.json()).then(d => setProjects(d.items ?? [])).catch(() => {});
   }, []);

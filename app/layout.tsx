@@ -19,6 +19,7 @@ const syne = Syne({
 });
 
 export const metadata: Metadata = {
+  icons: { icon: "/icon", apple: "/apple-icon" },
   title: "Portfolio",
   description: "Full-Stack Developer & Designer Portfolio",
 };

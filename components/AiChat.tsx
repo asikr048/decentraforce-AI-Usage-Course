@@ -25,23 +25,24 @@ const SUGGESTED = [
   "How can I contact you?",
 ];
 
-// Deep forest-green palette
-const G = {
-  bg:      "#071410",
-  bgCard:  "#091a12",
-  bgInput: "#050f0a",
-  border:  "rgba(34,197,94,0.13)",
-  borderH: "rgba(74,222,128,0.35)",
-  grad:    "linear-gradient(135deg,#15803d,#166534)",
-  bright:  "#4ade80",
-  mid:     "#22c55e",
-  glow:    "rgba(74,222,128,0.16)",
-  text:    "#dcfce7",
-  muted:   "rgba(187,247,208,0.45)",
-  faint:   "rgba(187,247,208,0.18)",
+// Teal palette — matches the main site's ocean/teal theme
+const T = {
+  bg:      "#020b14",
+  bgCard:  "#040f1c",
+  bgInput: "#020810",
+  border:  "rgba(0,210,200,0.12)",
+  borderH: "hsl(185,100%,48% / 0.35)",
+  grad:    "linear-gradient(135deg, hsl(185,80%,22%), hsl(210,80%,18%))",
+  bright:  "hsl(185,100%,60%)",
+  mid:     "hsl(185,100%,48%)",
+  glow:    "rgba(0,210,200,0.18)",
+  text:    "hsl(185,60%,92%)",
+  muted:   "rgba(180,240,240,0.45)",
+  faint:   "rgba(180,240,240,0.18)",
 };
 
 export default function AiChat() {
+  // ── ALL hooks must come before any early return ──
   const pathname = usePathname();
   const [open, setOpen]         = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -56,8 +57,6 @@ export default function AiChat() {
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLTextAreaElement>(null);
-
-  if (pathname.startsWith("/admin")) return null;
 
   useEffect(() => {
     fetch("/api/ai-settings")
@@ -80,6 +79,9 @@ export default function AiChat() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
+  // ── Early return AFTER all hooks ──
+  if (pathname.startsWith("/admin")) return null;
+
   async function ask(text: string) {
     const trimmed = text.trim();
     if (!trimmed || loading) return;
@@ -87,7 +89,6 @@ export default function AiChat() {
     setMessages(prev => [...prev, userMsg]);
     setInput("");
     setLoading(true);
-    // Skip greeting in history to save tokens
     const history = [...messages.slice(1), userMsg].map(m => ({ role: m.role, content: m.content }));
     try {
       const res = await fetch("/api/chat", {
@@ -120,7 +121,7 @@ export default function AiChat() {
 
   return (
     <>
-      {/* ── Floating button — bottom RIGHT ── */}
+      {/* ── Floating button ── */}
       <div className="fixed bottom-[5.5rem] right-4 md:bottom-6 md:right-6 z-50 flex flex-col items-center gap-1">
         <button
           onClick={() => setOpen(o => !o)}
@@ -128,16 +129,16 @@ export default function AiChat() {
           className="relative w-[56px] h-[56px] rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
           style={{
             background: open
-              ? "linear-gradient(135deg,#991b1b,#7f1d1d)"
-              : G.grad,
+              ? "linear-gradient(135deg,hsl(215,70%,22%),hsl(215,70%,16%))"
+              : T.grad,
             boxShadow: open
-              ? "0 4px 20px rgba(153,27,27,0.45)"
-              : `0 4px 24px rgba(21,128,61,0.55), 0 0 0 3px ${G.border}`,
+              ? "0 4px 20px rgba(0,60,120,0.5)"
+              : `0 4px 24px rgba(0,200,190,0.4), 0 0 0 1px ${T.border}`,
           }}
         >
           {pulse && !open && (
             <span className="absolute inset-0 rounded-full"
-              style={{ animation: "aiPulse 2.2s ease-out infinite", background: G.mid + "28" }} />
+              style={{ animation: "aiPulse 2.2s ease-out infinite", background: T.mid + "28" }} />
           )}
           <span style={{ transform: open ? "rotate(45deg)" : "none", transition: "transform .3s" }}>
             {open
@@ -149,62 +150,62 @@ export default function AiChat() {
 
         {!open && (
           <span className="text-[10px] font-bold tracking-widest select-none"
-            style={{ color: G.mid, textShadow: `0 0 8px ${G.glow}` }}>
+            style={{ color: T.mid, textShadow: `0 0 8px ${T.glow}` }}>
             ASK AI
           </span>
         )}
       </div>
 
-      {/* ── Chat window — right side ── */}
+      {/* ── Chat window ── */}
       {open && (
         <div
           className="fixed bottom-[11rem] right-4 md:bottom-28 md:right-6 z-50 flex flex-col rounded-2xl overflow-hidden"
           style={{
             width: "min(390px, calc(100vw - 2rem))",
             height: "min(520px, calc(100vh - 14rem))",
-            background: G.bgCard,
-            border: `1px solid ${G.borderH}`,
-            boxShadow: `0 32px 80px rgba(0,0,0,0.75), 0 0 60px ${G.glow}`,
+            background: T.bgCard,
+            border: `1px solid ${T.borderH}`,
+            boxShadow: `0 32px 80px rgba(0,0,0,0.75), 0 0 60px ${T.glow}`,
             animation: "chatIn .28s cubic-bezier(.34,1.4,.64,1) both",
           }}
         >
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 shrink-0"
-            style={{ background: G.bg, borderBottom: `1px solid ${G.border}` }}>
+            style={{ background: T.bg, borderBottom: `1px solid ${T.border}` }}>
             <div className="relative w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: G.grad, boxShadow: `0 0 16px rgba(21,128,61,0.45)` }}>
+              style={{ background: T.grad, boxShadow: `0 0 16px rgba(0,200,190,0.35)` }}>
               <Bot size={16} color="white" />
               <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full"
-                style={{ background: G.bright, border: `2.5px solid ${G.bgCard}` }} />
+                style={{ background: T.bright, border: `2.5px solid ${T.bgCard}` }} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold font-syne truncate" style={{ color: G.text }}>
+              <p className="text-sm font-bold font-syne truncate" style={{ color: T.text }}>
                 {settings.assistantName}
               </p>
-              <p className="text-[11px] flex items-center gap-1" style={{ color: G.muted }}>
-                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: G.bright }} />
+              <p className="text-[11px] flex items-center gap-1" style={{ color: T.muted }}>
+                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: T.bright }} />
                 Online · Portfolio expert
               </p>
             </div>
             <button onClick={reset} title="New chat"
               className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-              style={{ color: G.muted }}
-              onMouseEnter={e => (e.currentTarget.style.color = G.bright)}
-              onMouseLeave={e => (e.currentTarget.style.color = G.muted)}>
+              style={{ color: T.muted }}
+              onMouseEnter={e => (e.currentTarget.style.color = T.bright)}
+              onMouseLeave={e => (e.currentTarget.style.color = T.muted)}>
               <RotateCcw size={13} />
             </button>
             <button onClick={() => setOpen(false)}
               className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-              style={{ color: G.muted }}
-              onMouseEnter={e => (e.currentTarget.style.color = G.bright)}
-              onMouseLeave={e => (e.currentTarget.style.color = G.muted)}>
+              style={{ color: T.muted }}
+              onMouseEnter={e => (e.currentTarget.style.color = T.bright)}
+              onMouseLeave={e => (e.currentTarget.style.color = T.muted)}>
               <ChevronDown size={15} />
             </button>
           </div>
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3"
-            style={{ scrollbarWidth: "thin", scrollbarColor: `${G.border} transparent` }}>
+            style={{ scrollbarWidth: "thin", scrollbarColor: `${T.border} transparent` }}>
 
             {messages.map((msg, i) => (
               <div key={msg.id}
@@ -213,7 +214,7 @@ export default function AiChat() {
 
                 <div className="shrink-0 w-6 h-6 rounded-lg flex items-center justify-center mt-0.5"
                   style={msg.role === "assistant"
-                    ? { background: G.grad }
+                    ? { background: T.grad }
                     : { background: "hsl(262,60%,42%)" }}>
                   {msg.role === "assistant"
                     ? <Bot size={11} color="white" />
@@ -223,16 +224,16 @@ export default function AiChat() {
                 <div className="flex flex-col gap-0.5 max-w-[80%]">
                   <div className="px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap"
                     style={msg.role === "assistant"
-                      ? { background: G.bg, border: `1px solid ${G.border}`,
-                          color: G.text, borderRadius: "4px 16px 16px 16px" }
-                      : { background: G.grad, color: "#f0fdf4", fontWeight: 500,
+                      ? { background: T.bg, border: `1px solid ${T.border}`,
+                          color: T.text, borderRadius: "4px 16px 16px 16px" }
+                      : { background: T.grad, color: "#e0f8f8", fontWeight: 500,
                           borderRadius: "16px 4px 16px 16px",
-                          boxShadow: `0 2px 14px rgba(21,128,61,0.4)` }
+                          boxShadow: `0 2px 14px rgba(0,200,190,0.3)` }
                     }>
                     {msg.content}
                   </div>
                   <p className={`text-[10px] px-1 ${msg.role === "user" ? "text-right" : ""}`}
-                    style={{ color: G.faint }}>
+                    style={{ color: T.faint }}>
                     {fmt(msg.ts)}
                   </p>
                 </div>
@@ -243,15 +244,15 @@ export default function AiChat() {
             {loading && (
               <div className="flex gap-2.5">
                 <div className="shrink-0 w-6 h-6 rounded-lg flex items-center justify-center"
-                  style={{ background: G.grad }}>
+                  style={{ background: T.grad }}>
                   <Bot size={11} color="white" />
                 </div>
                 <div className="px-4 py-3.5 flex items-center gap-1.5"
-                  style={{ background: G.bg, border: `1px solid ${G.border}`,
+                  style={{ background: T.bg, border: `1px solid ${T.border}`,
                     borderRadius: "4px 16px 16px 16px" }}>
                   {[0, 1, 2].map(i => (
                     <span key={i} className="w-1.5 h-1.5 rounded-full"
-                      style={{ background: G.mid, animation: `dot 1.2s ease ${i * 0.2}s infinite` }} />
+                      style={{ background: T.mid, animation: `dot 1.2s ease ${i * 0.2}s infinite` }} />
                   ))}
                 </div>
               </div>
@@ -261,15 +262,15 @@ export default function AiChat() {
             {messages.length === 1 && !loading && (
               <div className="flex flex-col gap-1.5 mt-2">
                 <p className="text-[11px] font-semibold px-0.5 uppercase tracking-wider"
-                  style={{ color: G.faint }}>
+                  style={{ color: T.faint }}>
                   Try asking
                 </p>
                 {SUGGESTED.map(q => (
                   <button key={q} onClick={() => ask(q)}
                     className="text-left px-3.5 py-2 rounded-xl text-xs font-medium transition-all hover:scale-[1.015] active:scale-[0.98]"
-                    style={{ background: G.bg, border: `1px solid ${G.border}`, color: G.bright }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = G.borderH; e.currentTarget.style.boxShadow = `0 0 10px ${G.glow}`; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = G.border; e.currentTarget.style.boxShadow = "none"; }}>
+                    style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.bright }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderH; e.currentTarget.style.boxShadow = `0 0 10px ${T.glow}`; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.boxShadow = "none"; }}>
                     ↗ {q}
                   </button>
                 ))}
@@ -281,9 +282,9 @@ export default function AiChat() {
 
           {/* Input */}
           <div className="px-3 pb-3 pt-2 shrink-0"
-            style={{ borderTop: `1px solid ${G.border}`, background: G.bg }}>
+            style={{ borderTop: `1px solid ${T.border}`, background: T.bg }}>
             <div className="flex items-end gap-2 px-3 py-2 rounded-xl"
-              style={{ background: G.bgInput, border: `1px solid ${G.border}` }}>
+              style={{ background: T.bgInput, border: `1px solid ${T.border}` }}>
               <textarea
                 ref={inputRef}
                 value={input}
@@ -294,7 +295,7 @@ export default function AiChat() {
                 disabled={loading}
                 className="flex-1 bg-transparent text-sm outline-none resize-none"
                 style={{ maxHeight: "80px", lineHeight: "1.5",
-                  color: G.text, caretColor: G.mid }}
+                  color: T.text, caretColor: T.mid }}
                 onInput={e => {
                   const t = e.currentTarget;
                   t.style.height = "auto";
@@ -304,15 +305,15 @@ export default function AiChat() {
               <button onClick={() => ask(input)} disabled={loading || !input.trim()}
                 className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all disabled:opacity-25 hover:scale-110 active:scale-95"
                 style={{
-                  background: input.trim() && !loading ? G.grad : "transparent",
-                  boxShadow: input.trim() && !loading ? `0 0 14px rgba(21,128,61,0.45)` : "none",
+                  background: input.trim() && !loading ? T.grad : "transparent",
+                  boxShadow: input.trim() && !loading ? `0 0 14px rgba(0,200,190,0.35)` : "none",
                 }}>
                 {loading
-                  ? <Loader2 size={14} color={G.mid} className="animate-spin" />
-                  : <Send size={14} color={input.trim() ? "white" : G.faint} />}
+                  ? <Loader2 size={14} color={T.mid} className="animate-spin" />
+                  : <Send size={14} color={input.trim() ? "white" : T.faint} />}
               </button>
             </div>
-            <p className="text-center text-[10px] mt-1.5" style={{ color: G.faint }}>
+            <p className="text-center text-[10px] mt-1.5" style={{ color: T.faint }}>
               Answers based on portfolio data · Enter to send
             </p>
           </div>

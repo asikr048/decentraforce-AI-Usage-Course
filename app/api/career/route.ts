@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { readJson, writeJson } from "@/lib/localDb";
 
+function safeRead() {
+  try { return readJson("career.json"); }
+  catch { return {}; }
+}
+
 export async function GET() {
-  try {
-    return NextResponse.json(readJson("career.json"));
-  } catch {
-    return NextResponse.json({}, { status: 500 });
-  }
+  return NextResponse.json(safeRead());
 }
 
 export async function PUT(req: Request) {
@@ -14,7 +15,8 @@ export async function PUT(req: Request) {
     const body = await req.json();
     writeJson("career.json", body);
     return NextResponse.json(body);
-  } catch {
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

@@ -1,23 +1,22 @@
 import { NextResponse } from "next/server";
 import { readJson, writeJson } from "@/lib/localDb";
 
+function safeRead() {
+  try { return readJson("config.json"); }
+  catch { return {}; }
+}
+
 export async function GET() {
-  try {
-    const data = readJson("config.json");
-    return NextResponse.json(data);
-  } catch {
-    return NextResponse.json({}, { status: 500 });
-  }
+  return NextResponse.json(safeRead());
 }
 
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
-    const current = readJson<Record<string, unknown>>("config.json");
-    const updated = { ...current, ...body, updatedAt: new Date().toISOString() };
-    writeJson("config.json", updated);
-    return NextResponse.json(updated);
-  } catch {
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    writeJson("config.json", body);
+    return NextResponse.json(body);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
